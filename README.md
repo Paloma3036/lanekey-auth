@@ -1,77 +1,101 @@
 # 🔐 LaneKey Auth API
 
-API de autenticação desenvolvida em **Node.js + Express**, com foco em **segurança**, **boas práticas de backend** e **organização em camadas**. O projeto implementa um fluxo de **token temporário de acesso**, ideal para cenários como pré-autenticação, validação de usuários ou controle de acesso inicial.
+API RESTful focada em **autenticação, controle de acesso e boas práticas de segurança**, desenvolvida em Node.js. O projeto foi pensado como um **estudo prático de backend com ênfase em segurança**, servindo tanto como aprendizado quanto como peça de portfólio.
 
----
+## 🧰 Stack Tecnológica
 
-## 🚀 Funcionalidades
+* **Node.js** – ambiente de execução JavaScript no servidor, responsável por rodar a aplicação backend.
+* **Express** – framework minimalista para criação de APIs RESTful, facilitando o gerenciamento de rotas e middlewares.
+* **Prisma ORM** – camada de abstração para acesso ao banco de dados, garantindo tipagem, segurança e migrations versionadas.
+* **PostgreSQL** – banco de dados relacional utilizado para persistência segura das informações.
+* **bcrypt** – biblioteca para **hash de senhas**, garantindo que credenciais nunca sejam armazenadas em texto puro.
+* **dotenv** – gerenciamento de variáveis de ambiente, evitando exposição de dados sensíveis no código.
+* **cors** – controle de acesso entre diferentes origens (Cross-Origin Resource Sharing).
+* **JWT (preparado para uso)** – estratégia de autenticação baseada em tokens, planejada para evolução do projeto.
+* **Git & GitHub** – controle de versão e hospedagem do repositório.
 
-* Geração de **token temporário** por e-mail
-* Validação de token com verificação de expiração
-* Estrutura organizada (routes, controllers, services)
-* Documentação automática com **Swagger**
-* Configuração segura via **dotenv**
-* API pronta para evolução (RBAC, JWT, auditoria, etc.)
+## 📁 Estrutura do Projeto
 
----
-
-## 🧱 Arquitetura do Projeto
-
-```bash
-src/
-├── config/
-│   └── swagger.js
-├── controllers/
-│   └── auth.controller.js
-├── routes/
-│   └── auth.routes.js
-├── services/
-│   └── auth.service.js
-├── server.js
-└── .env.example
+```
+lanekey-auth/
+├── prisma/
+│   └── schema.prisma
+├── src/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   └── server.js
+├── .env.example
+├── package.json
+└── README.md
 ```
 
----
+## 🔐 Autenticação
 
-## 📌 Tecnologias Utilizadas
+O projeto implementa um fluxo seguro de autenticação baseado em:
 
-* **Node.js**
-* **Express**
-* **PostgreSQL (pg)**
-* **Swagger (swagger-ui-express)**
-* **dotenv**
-* **CORS**
+* Criação de usuários com **senha criptografada (bcrypt)**
+* Validação de credenciais no login
+* Geração de tokens com **tempo de expiração** (quando JWT estiver ativo)
+* Proteção de rotas sensíveis via middleware
 
----
+## 🛡️ Segurança
 
-## ⚙️ Instalação e Execução
+* Senhas armazenadas apenas como **hash**
+* Tokens com **tempo de expiração**
+* Validação de dados de entrada em todas as rotas
+* Uso de variáveis de ambiente para dados sensíveis
+* Separação clara entre rotas, controllers e services
 
-### 1️⃣ Clonar o repositório
+### 🔧 Preparado para extensões de segurança
+
+* JWT (JSON Web Token)
+* Rate limit (proteção contra força bruta)
+* Auditoria de ações
+* Controle de permissões e roles
+
+## ⚙️ Configuração do Ambiente
+
+### Pré-requisitos
+* Node.js (v18+)
+* PostgreSQL
+* Git
+
+### 🔹 Clonar o repositório
 
 ```bash
 git clone https://github.com/Paloma3036/lanekey-auth.git
 cd lanekey-auth
 ```
 
-### 2️⃣ Instalar dependências
+### 🔹 Instalar dependências
 
 ```bash
 npm install
 ```
 
-### 3️⃣ Configurar variáveis de ambiente
+### 🔹 Configurar variáveis de ambiente
 
-Crie um arquivo `.env` com base no `.env.example`:
+Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-PORT=3000
-DATABASE_URL=postgres://user:password@localhost:5432/lanekey
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/lanekey"
 ```
 
-### 4️⃣ Rodar o projeto
+> ⚠️ Ajuste conforme sua configuração local.
+
+### 🔹 Rodar migrations
 
 ```bash
-npm run dev
+npx prisma migrate dev
+```
+
+### 🔹 Iniciar o servidor
+
+```bash
+node src/server.js
 ```
 
 Servidor disponível em:
@@ -80,105 +104,21 @@ Servidor disponível em:
 http://localhost:3000
 ```
 
----
+## 🧠 Aprendizados com o Projeto
 
-## 📚 Documentação da API (Swagger)
-
-A documentação interativa está disponível em:
-
-```
-http://localhost:3000/api-docs
-```
-
----
-
-## 🔑 Endpoints Principais
-
-### ➤ Gerar token temporário
-
-**POST** `/auth/request-access`
-
-```json
-{
-  "email": "teste@lanekey.com"
-}
-```
-
-Resposta:
-
-```json
-{
-  "message": "Token temporário gerado",
-  "token": "abc123...",
-  "expiresAt": "2026-01-21T01:46:28.775Z"
-}
-```
-
----
-
-### ➤ Validar token
-
-**POST** `/auth/validate`
-
-```json
-{
-  "token": "abc123..."
-}
-```
-
-Resposta:
-
-```json
-{
-  "valid": true
-}
-```
-
----
-
-## 🛡️ Segurança
-
-* Tokens possuem **tempo de expiração**
-* Validações de entrada em todas as rotas
-* Separação clara de responsabilidades
-* Preparado para extensões como:
-
-  * JWT
-  * Rate limit
-  * Auditoria
-  * Controle de permissões
-
----
-
-## 🧠 Aprendizados Aplicados
-
-* Organização de API REST profissional
-* Debug e resolução de erros reais de backend
-* Integração de Swagger em projetos Node
-* Boas práticas para projetos de portfólio
-
----
-
-## 📈 Próximos Passos (ideias futuras)
-
-> **Não implementados neste projeto**, mas pensados para evolução:
-
-* Autenticação JWT
-* Sistema de auditoria
-* Dashboard administrativo
-* Controle de permissões (RBAC)
-* Testes automatizados
-
----
+* Estruturação de API REST com foco em segurança
+* Criptografia de senhas e proteção de credenciais
+* Organização em camadas (routes, controllers, services)
+* Uso do Prisma ORM com PostgreSQL
+* Planejamento de extensões como auditoria e controle de acesso
+* Aplicação de boas práticas profissionais de backend
 
 ## 👩‍💻 Autora
 
-**Paloma Araujo**
-Estudante de Análise e Desenvolvimento de Sistemas
-Foco em Backend, Segurança e Arquitetura de APIs
+Projeto desenvolvido por **Paloma Araujo**
+Estudante de **Análise e Desenvolvimento de Sistemas**, com foco em **backend, segurança e computação em nuvem**.
 
-🔗 GitHub: [@Paloma3036](https://github.com/Paloma3036)
+## 📄 Licença
 
----
-
-> Projeto desenvolvido com foco em aprendizado prático e consolidação de fundamentos de backend.
+Este projeto está licenciado sob a **MIT License**.
+Consulte o arquivo [LICENSE](./LICENSE) para mais detalhes.
