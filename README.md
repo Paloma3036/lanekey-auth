@@ -1,22 +1,22 @@
 # 🔐 LaneKey Auth API
 
-API RESTful focada em **autenticação, controle de acesso e boas práticas de segurança**, desenvolvida em Node.js. O projeto foi pensado como um **estudo prático de backend com ênfase em segurança**, servindo tanto como aprendizado quanto como peça de portfólio.
+API RESTful focada em **autenticação, controle de acesso e boas práticas de segurança**, desenvolvida em Node.js. 
+**Projeto educacional com foco em boas práticas de autenticação backend**
 
 ## 🧰 Stack Tecnológica
 
 * **Node.js** – ambiente de execução JavaScript no servidor, responsável por rodar a aplicação backend.
 * **Express** – framework minimalista para criação de APIs RESTful, facilitando o gerenciamento de rotas e middlewares.
-* **Prisma ORM** – camada de abstração para acesso ao banco de dados, garantindo tipagem, segurança e migrations versionadas.
-* **PostgreSQL** – banco de dados relacional utilizado para persistência segura das informações.
+* **Prisma ORM** – responsável pela **interação com o banco de dados**, atuando na criação de usuários, busca de credenciais e persistência segura das informações.
+* **PostgreSQL** – banco de dados relacional utilizado para armazenar dados de usuários e tokens.
 * **bcrypt** – biblioteca para **hash de senhas**, garantindo que credenciais nunca sejam armazenadas em texto puro.
-* **dotenv** – gerenciamento de variáveis de ambiente, evitando exposição de dados sensíveis no código.
+* **dotenv** – gerenciamento de variáveis de ambiente, evitando a exposição de dados sensíveis no código.
 * **cors** – controle de acesso entre diferentes origens (Cross-Origin Resource Sharing).
-* **JWT (preparado para uso)** – estratégia de autenticação baseada em tokens, planejada para evolução do projeto.
 * **Git & GitHub** – controle de versão e hospedagem do repositório.
 
 ## 📁 Estrutura do Projeto
 
-```
+```bash
 lanekey-auth/
 ├── prisma/
 │   └── schema.prisma
@@ -32,24 +32,38 @@ lanekey-auth/
 └── README.md
 ```
 
-## 🔐 Autenticação
+## 🔐 Fluxo de Autenticação
 
-O projeto implementa um fluxo seguro de autenticação baseado em:
+O fluxo de autenticação foi pensado de forma simples e segura:
 
-* Criação de usuários com **senha criptografada (bcrypt)**
-* Validação de credenciais no login
-* Geração de tokens com **tempo de expiração** (quando JWT estiver ativo)
-* Proteção de rotas sensíveis via middleware
+1. O usuário envia suas credenciais para a API
+2. A senha é **criptografada com bcrypt** antes de qualquer persistência
+3. O **Prisma ORM** é utilizado para:
+   * Criar usuários no banco
+   * Buscar credenciais durante o login
+   * Garantir acesso seguro e consistente aos dados
+4. Rotas sensíveis podem ser protegidas via middlewares
+
+## 🔑 Endpoints Principais
+
+| Método | Rota       | Descrição                                  |
+| ------ | ---------- | ------------------------------------------ |
+| POST   | /register  | Criação de usuário com senha criptografada |
+| POST   | /login     | Validação de credenciais                   |
+| GET    | /protected | Exemplo conceitual de rota protegida       |
+
+> ⚠️ Alguns endpoints podem estar planejados ou simplificados, conforme o foco educacional do projeto.
 
 ## 🛡️ Segurança
 
 * Senhas armazenadas apenas como **hash**
-* Tokens com **tempo de expiração**
 * Validação de dados de entrada em todas as rotas
 * Uso de variáveis de ambiente para dados sensíveis
 * Separação clara entre rotas, controllers e services
 
 ### 🔧 Preparado para extensões de segurança
+
+As funcionalidades abaixo **não estão implementadas**, mas foram consideradas no desenho da arquitetura:
 
 * JWT (JSON Web Token)
 * Rate limit (proteção contra força bruta)
@@ -58,7 +72,7 @@ O projeto implementa um fluxo seguro de autenticação baseado em:
 
 ## ⚙️ Configuração do Ambiente
 
-### Pré-requisitos
+_Pré-requisitos:_
 * Node.js (v18+)
 * PostgreSQL
 * Git
@@ -110,7 +124,7 @@ http://localhost:3000
 * Criptografia de senhas e proteção de credenciais
 * Organização em camadas (routes, controllers, services)
 * Uso do Prisma ORM com PostgreSQL
-* Planejamento de extensões como auditoria e controle de acesso
+* Planejamento arquitetural para extensões futuras
 * Aplicação de boas práticas profissionais de backend
 
 ## 👩‍💻 Autora
