@@ -7,6 +7,7 @@ API RESTful focada em **autenticação, controle de acesso e boas práticas de s
 
 * **Node.js** – ambiente de execução JavaScript no servidor, responsável por rodar a aplicação backend.
 * **Express** – framework minimalista para criação de APIs RESTful, facilitando o gerenciamento de rotas e middlewares.
+* **Swagger (OpenAPI)** – documentação interativa da API, facilitando testes e entendimento dos endpoints.
 * **Prisma ORM** – responsável pela **interação com o banco de dados**, atuando na criação de usuários, busca de credenciais e persistência segura das informações.
 * **PostgreSQL** – banco de dados relacional utilizado para armazenar dados de usuários e tokens.
 * **bcrypt** – biblioteca para **hash de senhas**, garantindo que credenciais nunca sejam armazenadas em texto puro.
@@ -34,7 +35,7 @@ lanekey-auth/
 
 ## 🔐 Fluxo de Autenticação
 
-O fluxo de autenticação foi pensado de forma simples e segura:
+O fluxo de autenticação foi aplicado de forma simples e segura:
 
 1. O usuário envia suas credenciais para a API
 2. A senha é **criptografada com bcrypt** antes de qualquer persistência
@@ -46,11 +47,11 @@ O fluxo de autenticação foi pensado de forma simples e segura:
 
 ## 🔑 Endpoints Principais
 
-| Método | Rota       | Descrição                                  |
-| ------ | ---------- | ------------------------------------------ |
-| POST   | /register  | Criação de usuário com senha criptografada |
-| POST   | /login     | Validação de credenciais                   |
-| GET    | /protected | Exemplo conceitual de rota protegida       |
+| Método | Rota       | Descrição                                 |
+| ------ | ---------- | ------------------------------------------|
+| POST   | /register  | Criação de usuário com senha criptografada|
+| POST   | /login     | Validação de credenciais                  |
+| GET    | /protected | Exemplo conceitual de rota protegida      |
 
 > ⚠️ Alguns endpoints podem estar planejados ou simplificados, conforme o foco educacional do projeto.
 
@@ -118,14 +119,23 @@ Servidor disponível em:
 http://localhost:3000
 ```
 
+### 📘 Documentação da API (Swagger)
+
+A API conta com documentação interativa utilizando **Swagger (OpenAPI)**, permitindo verificar e testar os endpoints pelo navegador.
+
+Acesse em:
+```
+http://localhost:3000/api-docs
+```
+
 ## 🧠 Aprendizados com o Projeto
 
-* Estruturação de API REST com foco em segurança
-* Criptografia de senhas e proteção de credenciais
-* Organização em camadas (routes, controllers, services)
-* Uso do Prisma ORM com PostgreSQL
-* Planejamento arquitetural para extensões futuras
-* Aplicação de boas práticas profissionais de backend
+* Estruturação de API REST com foco em segurança.
+* Criptografia de senhas e proteção de credenciais.
+* Organização em camadas (routes, controllers, services).
+* Uso do Prisma ORM com PostgreSQL.
+* Planejamento arquitetural para extensões futuras.
+* Aplicação de boas práticas profissionais de backend.
 
 ## 👩‍💻 Autora
 
