@@ -1,7 +1,14 @@
 # 🔐 LaneKey Auth API
 
-API RESTful focada em **autenticação, controle de acesso e boas práticas de segurança**, desenvolvida em Node.js. 
-**Projeto educacional com foco em boas práticas de autenticação backend**
+API RESTful voltada para **autenticação de usuários, controle de acesso e boas práticas de segurança**, desenvolvida em **Node.js**.
+
+Projeto educacional com foco em **backend security**, organização arquitetural e documentação profissional.
+
+## 📌 Visão Geral
+
+O LaneKey Auth API foi desenvolvido para demonstrar a implementação de um fluxo de autenticação seguro em uma API REST, aplicando conceitos fundamentais de segurança backend, separação de responsabilidades e boas práticas de desenvolvimento.
+
+_O projeto prioriza **clareza arquitetural**, **segurança de credenciais** e **facilidade de manutenção**, servindo como base para aplicações maiores._
 
 ## 🧰 Stack Tecnológica
 
