@@ -1,6 +1,7 @@
 # 🔐 LaneKey Auth API
 
 API RESTful voltada para **autenticação de usuários, controle de acesso e boas práticas de segurança**, desenvolvida em **Node.js**.
+
 ---
 
 ## 📌 Visão Geral
