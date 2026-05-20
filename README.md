@@ -1,155 +1,139 @@
-# 🔐 LaneKey Auth API
+# 🔑 LaneKey Auth API
 
-API RESTful voltada para **autenticação de usuários, controle de acesso e boas práticas de segurança**, desenvolvida em **Node.js**.
+O **LaneKey Auth API** é um microsserviço de autenticação segura baseado em tokens temporários de acesso de uso único (*passwordless*). O projeto foi reformulado para aplicar conceitos avançados de segurança no ecossistema Node.js, focando em alta performance com consultas SQL nativas, proteção contra ataques de força bruta e rastreabilidade de ações.
+
+O foco principal deste projeto é servir como uma solução robusta, modular e de fácil manutenção para gerenciamento de acessos temporários.
 
 ---
 
-## 📌 Visão Geral
-
-O LaneKey Auth API foi desenvolvido para demonstrar a implementação de um fluxo de autenticação seguro em uma API REST, aplicando conceitos fundamentais de segurança backend, separação de responsabilidades e boas práticas de desenvolvimento.
-
-_O projeto prioriza **clareza arquitetural**, **segurança de credenciais** e **facilidade de manutenção**, servindo como base para aplicações maiores._
-
 ## 🧰 Stack Tecnológica
 
-* **Node.js** – ambiente de execução JavaScript no servidor, responsável por rodar a aplicação backend.
-* **Express** – framework minimalista para criação de APIs RESTful, facilitando o gerenciamento de rotas e middlewares.
-* **Swagger (OpenAPI)** – documentação interativa da API, facilitando testes e entendimento dos endpoints.
-* **Prisma ORM** – responsável pela **interação com o banco de dados**, atuando na criação de usuários, busca de credenciais e persistência segura das informações.
-* **PostgreSQL** – banco de dados relacional utilizado para armazenar dados de usuários e tokens.
-* **bcrypt** – biblioteca para **hash de senhas**, garantindo que credenciais nunca sejam armazenadas em texto puro.
-* **dotenv** – gerenciamento de variáveis de ambiente, evitando a exposição de dados sensíveis no código.
-* **cors** – controle de acesso entre diferentes origens (Cross-Origin Resource Sharing).
-* **Git & GitHub** – controle de versão e hospedagem do repositório.
+* **Node.js** – Ambiente de execução JavaScript no servidor.
+* **Express** – Framework minimalista para gerenciamento de rotas e middlewares.
+* **PostgreSQL** – Banco de dados relacional para persistência de tokens e logs.
+* **PG (node-postgres)** – Driver nativo utilizado para comunicação de alta performance com o banco via SQL puro.
+* **Crypto (Nativo)** – Geração de tokens de alta entropia e hashing seguro com SHA-256.
+* **Express Rate Limit** – Middleware de proteção contra ataques de força bruta e negação de serviço (DoS).
+* **Swagger UI (OpenAPI 3.0)** – Documentação interativa e testável da API direto pelo navegador.
+
+---
 
 ## 📁 Estrutura do Projeto
 
-```bash
+```text
 lanekey-auth/
-├── prisma/
-│   └── schema.prisma
+├── database/
+│   └── init.sql         # Script de criação automática das tabelas
 ├── src/
-│   ├── controllers/
-│   ├── middlewares/
-│   ├── routes/
-│   ├── services/
-│   ├── utils/
-│   └── server.js
+│   ├── config/          # Configurações de banco e documentação (Swagger)
+│   ├── controllers/     # Orquestração das requisições e respostas
+│   ├── middlewares/     # Validações de entrada e limitadores de requisição
+│   ├── repositories/    # Camada de persistência (Queries SQL puras)
+│   ├── routes/          # Definição dos endpoints e anotações do Swagger
+│   ├── services/        # Regras de negócio e lógica de autenticação
+│   ├── utils/           # Funções utilitárias (geração e hash de tokens)
+│   └── server.js        # Inicialização do servidor e tratamento global de erros
 ├── .env.example
 ├── package.json
 └── README.md
 ```
 
+---
+
 ## 🔐 Fluxo de Autenticação
 
-O fluxo de autenticação foi aplicado de forma simples e segura:
+A arquitetura implementa um fluxo seguro de tokens temporários:
+1. O cliente solicita acesso informando um e-mail válido.
+2. A API gera um token criptográfico aleatório (bruto) e cria um hash SHA-256 dele.
+3. Apenas o **hash** e a data de expiração são salvos no banco de dados.
+4. O cliente recebe o token bruto (que nunca é exposto no banco).
+5. Na validação, o cliente envia o token bruto, a API gera o hash novamente, valida a expiração, e marca o registro como usado se for válido.
 
-1. O usuário envia suas credenciais para a API
-2. A senha é **criptografada com bcrypt** antes de qualquer persistência
-3. O **Prisma ORM** é utilizado para:
-   * Criar usuários no banco
-   * Buscar credenciais durante o login
-   * Garantir acesso seguro e consistente aos dados
-4. Rotas sensíveis podem ser protegidas via middlewares
+---
 
 ## 🔑 Endpoints Principais
 
-| Método | Rota       | Descrição                                 |
-| ------ | ---------- | ------------------------------------------|
-| POST   | /register  | Criação de usuário com senha criptografada|
-| POST   | /login     | Validação de credenciais                  |
-| GET    | /protected | Exemplo conceitual de rota protegida      |
 
-> ⚠️ Alguns endpoints podem estar planejados ou simplificados, conforme o foco educacional do projeto.
+| Método | Rota | Descrição | Proteção Integrada |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/auth/token` | Solicita a geração de um token temporário | Rate Limit (Max 10 req / 15 min) + Regex de E-mail |
+| **POST** | `/auth/token/validate` | Valida o token e inutiliza-o após o uso | Rate Limit |
+| **GET** | `/api-docs` | Interface interativa do Swagger | N/A |
 
-## 🛡️ Segurança
+---
 
-* Senhas armazenadas apenas como **hash**
-* Validação de dados de entrada em todas as rotas
-* Uso de variáveis de ambiente para dados sensíveis
-* Separação clara entre rotas, controllers e services
+## 🛡️ Camadas de Segurança Aplicadas
 
-### 🔧 Preparado para extensões de segurança
+* **Princípio da Menor Exposição**: Tokens brutos trafegam apenas na requisição; o banco armazena apenas hashes SHA-256 unidirecionais.
+* **Proteção contra Força Bruta**: Implementação de *Rate Limiting* configurável por variáveis de ambiente para mitigar ataques automatizados.
+* **Sanitização de Dados**: Camada rigorosa de validação sintática de e-mails via expressões regulares antes de atingir as regras de negócio.
+* **Tratamento Centralizado de Erros**: Erros internos (como falhas de banco) não expõem detalhes da infraestrutura (*stack traces*) para o cliente final.
 
-As funcionalidades abaixo **não estão implementadas**, mas foram consideradas no desenho da arquitetura:
-
-* JWT (JSON Web Token)
-* Rate limit (proteção contra força bruta)
-* Auditoria de ações
-* Controle de permissões e roles
+---
 
 ## ⚙️ Configuração do Ambiente
 
-_Pré-requisitos:_
+### Pré-requisitos
 * Node.js (v18+)
-* PostgreSQL
+* PostgreSQL rodando localmente
 * Git
 
-### 🔹 Clonar o repositório
-
+### 1. Clonar o repositório e instalar dependências
 ```bash
 git clone https://github.com/Paloma3036/lanekey-auth.git
 cd lanekey-auth
-```
-
-### 🔹 Instalar dependências
-
-```bash
 npm install
 ```
 
-### 🔹 Configurar variáveis de ambiente
+### 2. Configuração do Banco de Dados
+1. Crie um banco de dados vazio no seu PostgreSQL chamado `lanekey`.
+2. Execute o arquivo de inicialização para estruturar as tabelas necessárias:
+   ```bash
+   psql -U postgres -d lanekey -h localhost -f database/init.sql
+   ```
 
-Crie um arquivo `.env` na raiz do projeto:
-
+### 3. Variáveis de Ambiente
+Copie o arquivo de exemplo:
+```bash
+cp .env.example .env
+```
+Abra o arquivo `.env` gerado e configure suas credenciais locais do PostgreSQL:
 ```env
-DATABASE_URL="postgresql://usuario:senha@localhost:5432/lanekey"
+PORT=3000
+TOKEN_EXPIRATION_MINUTES=15
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX=10
+DATABASE_URL=postgresql://seu_usuario:sua_senha@localhost:5432/lanekey
 ```
 
-> ⚠️ Ajuste conforme sua configuração local.
-
-### 🔹 Rodar migrations
-
+### 4. Inicializar o servidor
 ```bash
-npx prisma migrate dev
+npm start
 ```
+O servidor estará ativo em `http://localhost:3000`.
 
-### 🔹 Iniciar o servidor
+---
 
-```bash
-node src/server.js
-```
+## 📘 Documentação Interativa (Swagger)
 
-Servidor disponível em:
+A API possui documentação em conformidade com o padrão OpenAPI 3.0. Para visualizar os schemas, testar as rotas em tempo real e simular os payloads, acesse com a API rodando:
 
-```
-http://localhost:3000
-```
+🔗 **[http://localhost:3000/api-docs](http://localhost:3000/api-docs)**
 
-### 📘 Documentação da API (Swagger)
+---
 
-A API conta com documentação interativa utilizando **Swagger (OpenAPI)**, permitindo verificar e testar os endpoints pelo navegador.
+## 🧠 Aprendizados e Evolução
 
-Acesse em:
-```
-http://localhost:3000/api-docs
-```
+* Mudança arquitetural estratégica de um ORM pesado para consultas SQL nativas (`pg`), priorizando velocidade e controle total de índices.
+* Domínio na manipulação do módulo `crypto` do Node.js para geração de dados pseudoaleatórios e hashing de segurança.
+* Arquitetura em camadas desacopladas baseada no padrão Repository, facilitando mock de testes e substituição de banco de dados se necessário.
 
-## 🧠 Aprendizados com o Projeto
-
-* Estruturação de API REST com foco em segurança.
-* Criptografia de senhas e proteção de credenciais.
-* Organização em camadas (routes, controllers, services).
-* Uso do Prisma ORM com PostgreSQL.
-* Planejamento arquitetural para extensões futuras.
-* Aplicação de boas práticas profissionais de backend.
+---
 
 ## 👩‍💻 Autora
 
-Projeto desenvolvido por **Paloma Araujo**
-Estudante de **Análise e Desenvolvimento de Sistemas**, com foco em **backend, segurança e computação em nuvem**.
+Desenvolvido com 💜 por **Paloma Araujo**.  
+Focada em Desenvolvimento Backend, Segurança e Dados
 
-## 📄 Licença
-
-Este projeto está licenciado sob a **MIT License**.
-Consulte o arquivo [LICENSE](./LICENSE) para mais detalhes.
+* [LinkedIn](www.linkedin.com/in/paloma-araujo2805)  
+* [GitHub](https://github.com/Paloma3036)
