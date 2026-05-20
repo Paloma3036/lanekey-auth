@@ -1,14 +1,16 @@
 const rateLimit = require('express-rate-limit');
 
-const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 10, // 10 requisições por IP
+const windowMs = (Number(process.env.RATE_LIMIT_WINDOW) || 15) * 60 * 1000;
+const maxRequests = Number(process.env.RATE_LIMIT_MAX) || 10;
+
+const rateLimiter = rateLimit({
+  windowMs,
+  max: maxRequests,
   message: {
-    error: 'Muitas tentativas. Tente novamente mais tarde.'
+    error: 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.',
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
 
-module.exports = authRateLimiter;
-
+module.exports = rateLimiter;

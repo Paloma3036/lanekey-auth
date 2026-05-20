@@ -2,12 +2,17 @@ const express = require('express');
 
 const router = express.Router();
 
-const authController = require('../controllers/auth.controller');
-console.log('AUTH CONTROLLER:', authController);
+const {
+  requestAccess,
+  validateToken,
+} = require('../controllers/auth.controller');
+
+const rateLimiter = require('../middlewares/rateLimiter');
+const validateRequestAccess = require('../middlewares/validateRequestAccess');
 
 /**
  * @swagger
- * /auth/request-access:
+ * /auth/token:
  *   post:
  *     summary: Gera um token temporário de acesso
  *     tags: [Auth]
@@ -22,18 +27,18 @@ console.log('AUTH CONTROLLER:', authController);
  *             properties:
  *               email:
  *                 type: string
- *                 example: teste@lanekey.com
+ *                 example: teste@email.com
  *     responses:
  *       201:
  *         description: Token gerado com sucesso
  *       400:
- *         description: Email obrigatório
+ *         description: Email inválido
  */
-router.post('/request-access', authController.requestAccess);
+router.post('/token', rateLimiter, validateRequestAccess, requestAccess);
 
 /**
  * @swagger
- * /auth/validate:
+ * /auth/token/validate:
  *   post:
  *     summary: Valida um token temporário
  *     tags: [Auth]
@@ -48,14 +53,13 @@ router.post('/request-access', authController.requestAccess);
  *             properties:
  *               token:
  *                 type: string
- *                 example: 9fa3c2...
+ *                 example: abc123...
  *     responses:
  *       200:
  *         description: Token válido
  *       400:
- *         description: Token inválido ou expirado
+ *         description: Token inválido
  */
-router.post('/validate', authController.validateToken);
+router.post('/token/validate', rateLimiter, validateToken);
 
 module.exports = router;
-

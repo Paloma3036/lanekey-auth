@@ -1,5 +1,19 @@
 node_modules
+
+# env files
 .env
 .env.*
-npm-debug.log
 
+# logs
+npm-debug.log
+*.log
+
+# system
+.DS_Store
+
+# build
+dist
+build
+
+# tests
+coverage

@@ -5,7 +5,13 @@ async function saveToken({ email, tokenHash, expiresAt }) {
     INSERT INTO temporary_tokens (email, token_hash, expires_at)
     VALUES ($1, $2, $3)
   `;
-  await pool.query(query, [email, tokenHash, expiresAt]);
+
+  try {
+    await pool.query(query, [email, tokenHash, expiresAt]);
+  } catch (error) {
+    console.error('ERRO AO SALVAR TOKEN:', error);
+    throw new Error('Erro ao salvar token');
+  }
 }
 
 async function findValidToken(tokenHash) {
@@ -17,8 +23,14 @@ async function findValidToken(tokenHash) {
       AND expires_at > NOW()
     LIMIT 1
   `;
-  const result = await pool.query(query, [tokenHash]);
-  return result.rows[0];
+
+  try {
+    const result = await pool.query(query, [tokenHash]);
+    return result.rows[0];
+  } catch (error) {
+    console.error('ERRO AO BUSCAR TOKEN:', error);
+    throw new Error('Erro ao buscar token');
+  }
 }
 
 async function markTokenAsUsed(id) {
@@ -27,7 +39,13 @@ async function markTokenAsUsed(id) {
     SET used = true
     WHERE id = $1
   `;
-  await pool.query(query, [id]);
+
+  try {
+    await pool.query(query, [id]);
+  } catch (error) {
+    console.error('ERRO AO ATUALIZAR TOKEN:', error);
+    throw new Error('Erro ao atualizar token');
+  }
 }
 
 module.exports = {
@@ -35,4 +53,3 @@ module.exports = {
   findValidToken,
   markTokenAsUsed,
 };
-

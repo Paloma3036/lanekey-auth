@@ -1,14 +1,17 @@
-const crypto = require('crypto');
+const generateTempToken = require('../utils/generateTempToken');
+const hashToken = require('../utils/hashToken');
 const tokenRepository = require('../repositories/token.repository');
 
 async function generateTemporaryToken(email) {
-  const rawToken = crypto.randomBytes(32).toString('hex');
-  const tokenHash = crypto
-    .createHash('sha256')
-    .update(rawToken)
-    .digest('hex');
+  if (!email) {
+    throw new Error('Email é obrigatório');
+  }
 
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
+  const rawToken = generateTempToken();
+  const tokenHash = hashToken(rawToken);
+
+  const expiration = process.env.TOKEN_EXPIRATION_MINUTES || 15;
+  const expiresAt = new Date(Date.now() + expiration * 60 * 1000);
 
   await tokenRepository.saveToken({
     email,
@@ -17,7 +20,6 @@ async function generateTemporaryToken(email) {
   });
 
   return {
-    message: 'Token temporário gerado',
     email,
     token: rawToken,
     expiresAt,
@@ -25,21 +27,21 @@ async function generateTemporaryToken(email) {
 }
 
 async function validateTemporaryToken(token) {
-  const tokenHash = crypto
-    .createHash('sha256')
-    .update(token)
-    .digest('hex');
+  if (!token) {
+    throw new Error('Token não fornecido');
+  }
 
-  const storedToken = await tokenRepository.findValidToken(tokenHash);
+  const tokenHashValue = hashToken(token);
+
+  const storedToken = await tokenRepository.findValidToken(tokenHashValue);
 
   if (!storedToken) {
-    throw new Error('Token inválido');
+    throw new Error('Token inválido ou expirado');
   }
 
   await tokenRepository.markTokenAsUsed(storedToken.id);
 
   return {
-    message: 'Token válido',
     email: storedToken.email,
   };
 }
@@ -48,4 +50,3 @@ module.exports = {
   generateTemporaryToken,
   validateTemporaryToken,
 };
-

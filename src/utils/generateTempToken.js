@@ -1,8 +1,7 @@
 const crypto = require('crypto');
 
-function generateTempToken() {
-  return crypto.randomBytes(32).toString('hex');
+function generateTempToken(size = 32) {
+  return crypto.randomBytes(size).toString('hex');
 }
 
 module.exports = generateTempToken;
-

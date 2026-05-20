@@ -8,4 +8,3 @@ function hashToken(token) {
 }
 
 module.exports = hashToken;
-
